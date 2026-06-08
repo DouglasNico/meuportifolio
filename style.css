@@ -409,4 +409,22 @@
   .services-grid, .proj-grid, .about-grid { grid-template-columns: 1fr; }
   .cta-section { margin: 0 24px 48px; padding: 40px 24px; }
   footer { padding: 18px 24px; flex-direction: column; gap: 8px; text-align: center; }
+ .proj-grid, .cta-section {
+    padding-left: 24px;
+    padding-right: 24px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Ajusta o card de contato para ter a mesma largura máxima dos cards de projeto */
+  .cta-section {
+    width: 100%;
+    margin-bottom: 48px;
+    padding: 40px 24px; /* Ajuste o padding interno para ficar igual aos cards */
+  }
+
+  .proj-grid {
+    gap: 20px;
+    grid-template-columns: 1fr;
+  }
 }
