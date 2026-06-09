@@ -58,16 +58,10 @@
   height: 28px;
 }
 
-
-
-
   .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none;}
-  .logo {transition: transform 0.3s ease;}
-  .logo:hover {transform: scale(1.10);}
-  .logo-mark {
-    width: 34px; height: 34px; background: var(--blue2);
-    border-radius: 8px; display: flex; align-items: center; justify-content: center;
-  }
+  .logo { transition: transform 0.3s ease;}
+  .logo:hover { transform: scale(1.10);}
+  .logo-mark { width: 34px; height: 34px; background: var(--blue2); border-radius: 8px; display: flex; align-items: center; justify-content: center;}
   .logo-mark svg { width: 16px; height: 16px; fill: none; stroke: white; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
   .logo-name { font-weight: 700; font-size: 16px; letter-spacing: -0.3px; color: var(--text); }
   .logo-name span { color: var(--blue); }
@@ -78,8 +72,7 @@
     background: var(--blue2); color: white; font-size: 13px;
     font-weight: 600; padding: 9px 20px; border-radius: 8px;
     border: none; cursor: pointer; transition: background 0.2s;
-    font-family: var(--font); text-decoration: none;
-  }
+    font-family: var(--font); text-decoration: none;}
   .nav-cta:hover { background: #1D4ED8; }
 
   /* ---- HERO ---- */
@@ -332,11 +325,11 @@
   .hero-left > *:nth-child(4) { animation-delay: 0.32s; }
   .hero-left > *:nth-child(5) { animation-delay: 0.40s; }
 
+
 a[href^="tel"] {
   color: inherit;
   text-decoration: none;
 }
-
 
 
 
