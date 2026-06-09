@@ -18,8 +18,8 @@
     --mono: 'JetBrains Mono', monospace;
     --r: 12px;
   }
-
-  html { scroll-behavior: smooth; }
+/* 1. Suporte para Firefox (que usa o novo padrão da web) */
+  html { scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: var(--blue2) var(--bg);}
   body { background: var(--bg); font-family: var(--font); color: var(--text); line-height: 1.6; overflow-x: hidden; }
 
   /* ---- SCROLLBAR ---- */
@@ -367,6 +367,15 @@ a[href^="tel"] {
 
 
 @media (max-width: 900px) {
+
+  
+  ::-webkit-scrollbar {
+    /* No celular, esconde a barra customizada para não roubar espaço da tela.
+       O touch já é intuitivo o suficiente sem ela. */
+    display: none; 
+  }
+
+
  /*  nav { 
     padding: 16px 24px; 
   } */
@@ -444,3 +453,4 @@ a[href^="tel"] {
     grid-template-columns: 1fr;
   }
 }
+
