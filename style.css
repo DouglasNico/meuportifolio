@@ -29,14 +29,27 @@
 
   /* ---- NAV ---- */
   nav {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 48px;
+    /* display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px; */
     border-bottom: 1px solid var(--border);
-    position: sticky; top: 0;
+    position: sticky;
+    top: 0;
     background: rgba(10,10,15,0.70);
     backdrop-filter: blur(16px);
     z-index: 100;
+    width: 100%;
   }
+
+  /* Nova classe que alinha os itens com o resto do site */
+.nav-content {
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  padding: 18px 48px;
+  max-width: 1200px; /* A mesma largura máxima das seções do site */
+  margin: 0 auto;    /* Centraliza na tela */
+  width: 100%;
+}
 
   /* ---- COMPONENTES NOVOS DA NAV ---- */
 .nav-actions {
@@ -354,10 +367,15 @@ a[href^="tel"] {
 
 
 @media (max-width: 900px) {
-  nav { 
+ /*  nav { 
     padding: 16px 24px; 
-  }
+  } */
   
+.nav-content { 
+    padding: 16px 24px; 
+    flex-wrap: wrap; /* Permite que o menu mobile desça */
+  }
+
   .mobile-btn { 
     display: block; /* Mostra o menu hamburguer */
   }
