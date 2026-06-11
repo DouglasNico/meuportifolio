@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — DH | Dev</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<div id="loginScreen" class="screen">
+  <div class="login-card">
+    <h1>DH <span>|</span> Dev</h1>
+    <p>Painel Administrativo</p>
+    <form id="loginForm">
+      <input type="email" id="emailInput" placeholder="Email" required autocomplete="email">
+      <input type="password" id="passwordInput" placeholder="Senha" required autocomplete="current-password">
+      <button type="submit">Entrar</button>
+      <p id="loginError" class="error-msg"></p>
+    </form>
+  </div>
+</div>
+
+<div id="dashboard" class="screen" style="display:none">
+  <header class="admin-header">
+    <h1>Projetos</h1>
+    <div class="admin-header-actions">
+      <button id="addProjectBtn" class="btn-primary">+ Novo Projeto</button>
+      <button id="logoutBtn" class="btn-outline">Sair</button>
+    </div>
+  </header>
+  <main>
+    <div id="projectList" class="project-list"></div>
+    <p id="emptyState" class="empty-state" style="display:none">Nenhum projeto ainda. Clique em "+ Novo Projeto" para começar.</p>
+  </main>
+</div>
+
+<div id="projectModal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <h2 id="modalTitle">Novo Projeto</h2>
+    <form id="projectForm">
+      <input type="hidden" id="projectId">
+      <div class="form-group">
+        <label for="titleInput">Título</label>
+        <input type="text" id="titleInput" required>
+      </div>
+      <div class="form-group">
+        <label for="descInput">Descrição</label>
+        <textarea id="descInput" rows="3" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="tagsInput">Tags (separadas por vírgula)</label>
+        <input type="text" id="tagsInput" placeholder="React, Node.js, Firebase">
+      </div>
+      <div class="form-group">
+        <label>Imagens do Projeto</label>
+        <div id="imagesContainer">
+          <div class="image-row">
+            <div class="image-row-inputs">
+              <input type="file" accept="image/*">
+              <input type="url" class="image-url" placeholder="Upload automático ou URL">
+            </div>
+            <div class="image-row-actions">
+              <span class="upload-status"></span>
+              <button type="button" class="btn-remove" title="Remover imagem">×</button>
+            </div>
+            <img class="image-preview" src="" alt="Preview" style="display:none">
+          </div>
+        </div>
+        <button type="button" id="addImageBtn" class="btn-outline" style="margin-top:8px;font-size:12px;padding:8px 16px">+ Adicionar imagem</button>
+      </div>
+      <div class="form-group">
+        <label for="stackInput">Stack / Tecnologias (separadas por vírgula)</label>
+        <input type="text" id="stackInput" placeholder="React, Node.js, Firebase, PostgreSQL">
+      </div>
+      <div class="form-group">
+        <label for="linkInput">Link do Projeto</label>
+        <input type="url" id="linkInput" placeholder="https://...">
+      </div>
+      <div class="form-group checkbox-group">
+        <label><input type="checkbox" id="publishedInput" checked> Publicado</label>
+      </div>
+      <div class="modal-actions">
+        <button type="submit" class="btn-primary" id="saveBtn">Salvar</button>
+        <button type="button" class="btn-outline" id="cancelBtn">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

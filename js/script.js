@@ -1,0 +1,256 @@
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- LÓGICA DO MENU MOBILE ---
+    const mobileBtn = document.querySelector('.mobile-btn');
+    const navMenu = document.querySelector('.nav-menu');
+    const navLinks = document.querySelectorAll('.nav-menu li a');
+
+    if (mobileBtn) {
+        mobileBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+        });
+    });
+
+    // --- ROLAGEM SUAVE ---
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault(); 
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') {
+                window.scrollTo(0, 0);
+            } else {
+                const targetSection = document.querySelector(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView();
+                }
+            }
+        });
+    });
+
+    // --- SCROLL REVEAL ---
+    const revealEls = document.querySelectorAll('.reveal');
+    if (revealEls.length) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.15 });
+
+        revealEls.forEach(el => observer.observe(el));
+    }
+
+    // --- CONTAGEM ANIMADA DOS STATS ---
+    const counters = document.querySelectorAll('.s-count');
+    if (counters.length) {
+        const countObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.dataset.target);
+                    let current = 0;
+                    const step = Math.max(1, Math.floor(target / 40));
+                    const timer = setInterval(() => {
+                        current += step;
+                        if (current >= target) {
+                            el.textContent = target;
+                            clearInterval(timer);
+                        } else {
+                            el.textContent = current;
+                        }
+                    }, 30);
+                    countObserver.unobserve(el);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(el => countObserver.observe(el));
+    }
+
+    // --- MODAL DO PROJETO ---
+    const projModal = document.getElementById('projModal');
+    let currentProject = null;
+    let currentImageIndex = 0;
+
+    if (projModal) {
+        const modalBackdrop = projModal.querySelector('.modal-backdrop');
+        const modalClose = projModal.querySelector('.modal-close');
+        const modalTitle = projModal.querySelector('.modal-title');
+        const modalTags = projModal.querySelector('.modal-tags');
+        const modalDesc = projModal.querySelector('.modal-desc');
+        const modalStackWrap = projModal.querySelector('.modal-stack-wrap');
+        const modalStack = projModal.querySelector('.modal-stack');
+        const modalLink = projModal.querySelector('.modal-link');
+        const galleryImg = projModal.querySelector('.gallery-img');
+        const galleryPrev = projModal.querySelector('.gallery-prev');
+        const galleryNext = projModal.querySelector('.gallery-next');
+        const galleryDots = projModal.querySelector('.gallery-dots');
+
+        function openProjModal(project) {
+            currentProject = project;
+            currentImageIndex = 0;
+
+            modalTitle.textContent = project.title;
+            modalDesc.textContent = project.description || '';
+
+            modalTags.innerHTML = (project.tags || []).map(t => `<span class="ptag">${esc(t)}</span>`).join('');
+
+            const stack = project.stack || [];
+            if (stack.length) {
+                modalStackWrap.style.display = '';
+                modalStack.innerHTML = stack.map(s => `<span class="stag">${esc(s)}</span>`).join('');
+            } else {
+                modalStackWrap.style.display = 'none';
+            }
+
+            if (project.link) {
+                modalLink.href = project.link;
+                modalLink.style.display = '';
+            } else {
+                modalLink.style.display = 'none';
+            }
+
+            const images = (project.images && project.images.length) ? project.images :
+                           (project.imageUrl ? [project.imageUrl] : []);
+
+            updateGallery(images);
+
+            projModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProjModal() {
+            projModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function updateGallery(images) {
+            const hasMultiple = images.length > 1;
+
+            if (images.length === 0) {
+                galleryImg.src = '';
+                galleryImg.alt = '';
+                galleryPrev.classList.add('hidden');
+                galleryNext.classList.add('hidden');
+                galleryDots.innerHTML = '';
+                return;
+            }
+
+            galleryImg.src = images[currentImageIndex];
+            galleryImg.alt = `Screenshot ${currentImageIndex + 1} de ${images.length}`;
+
+            galleryPrev.classList.toggle('hidden', !hasMultiple || currentImageIndex === 0);
+            galleryNext.classList.toggle('hidden', !hasMultiple || currentImageIndex === images.length - 1);
+
+            if (hasMultiple) {
+                galleryDots.innerHTML = images.map((_, i) =>
+                    `<button class="gallery-dot${i === currentImageIndex ? ' active' : ''}" data-index="${i}"></button>`
+                ).join('');
+            } else {
+                galleryDots.innerHTML = '';
+            }
+        }
+
+        function navigateGallery(dir) {
+            const images = (currentProject.images && currentProject.images.length) ? currentProject.images :
+                           (currentProject.imageUrl ? [currentProject.imageUrl] : []);
+            const ni = currentImageIndex + dir;
+            if (ni >= 0 && ni < images.length) {
+                currentImageIndex = ni;
+                updateGallery(images);
+            }
+        }
+
+        modalClose.addEventListener('click', closeProjModal);
+        modalBackdrop.addEventListener('click', closeProjModal);
+        galleryPrev.addEventListener('click', () => navigateGallery(-1));
+        galleryNext.addEventListener('click', () => navigateGallery(1));
+
+        galleryDots.addEventListener('click', e => {
+            const dot = e.target.closest('.gallery-dot');
+            if (!dot) return;
+            const images = (currentProject.images && currentProject.images.length) ? currentProject.images :
+                           (currentProject.imageUrl ? [currentProject.imageUrl] : []);
+            const idx = parseInt(dot.dataset.index);
+            if (idx >= 0 && idx < images.length) {
+                currentImageIndex = idx;
+                updateGallery(images);
+            }
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && projModal.classList.contains('active')) {
+                closeProjModal();
+            }
+        });
+    }
+
+    // --- CARREGAR PROJETOS DO FIRESTORE ---
+    const container = document.getElementById('projectsContainer');
+    if (container && typeof firebase !== 'undefined') {
+        const db = firebase.firestore();
+        let projectsData = [];
+
+        function renderProjects(snapshot) {
+            projectsData = [];
+            if (snapshot.empty) {
+                container.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0">Nenhum projeto publicado ainda.</p>';
+                return;
+            }
+            container.innerHTML = '';
+            snapshot.forEach(doc => {
+                const p = doc.data();
+                const id = doc.id;
+                projectsData.push({ id, ...p });
+
+                const card = document.createElement('div');
+                card.className = 'proj-card';
+                card.dataset.id = id;
+
+                const thumb = (p.images && p.images.length) ? p.images[0] : (p.imageUrl || '');
+
+                card.innerHTML = `
+                    <div class="proj-thumb" style="background:${thumb ? `url(${thumb}) center/cover` : 'linear-gradient(135deg,#0D2B6E,#1A4DB5)'}">
+                        <div class="proj-overlay"></div>
+                    </div>
+                    <div class="proj-body">
+                        <div class="proj-title">${esc(p.title)}</div>
+                        <div class="proj-desc">${esc(p.description)}</div>
+                        <div class="proj-tags">${(p.tags || []).map(t => `<span class="ptag">${esc(t)}</span>`).join('')}</div>
+                        ${p.link ? `<a class="proj-btn" href="${esc(p.link)}" target="_blank">Ver Projeto →</a>` : ''}
+                    </div>
+                `;
+
+                card.addEventListener('click', e => {
+                    if (e.target.closest('a')) return;
+                    const proj = projectsData.find(x => x.id === id);
+                    if (proj) openProjModal(proj);
+                });
+
+                container.appendChild(card);
+            });
+        }
+
+        db.collection('projects').where('published', '==', true).orderBy('order')
+            .onSnapshot(renderProjects, error => {
+                console.error('Firestore index error:', error);
+                db.collection('projects').where('published', '==', true)
+                    .onSnapshot(renderProjects, () => {
+                        container.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0">Erro ao carregar projetos.</p>';
+                    });
+            });
+    }
+});
+
+function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
