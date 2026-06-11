@@ -35,8 +35,17 @@ body {
   font-weight: 600; font-family: inherit; cursor: pointer;
   transition: background 0.2s; margin-top: 4px;
 }
+.login-card button:disabled { opacity: 0.7; cursor: not-allowed; }
 .login-card button:hover { background: #1D4ED8; }
+.login-card button:disabled:hover { background: #2563EB; }
 .error-msg { font-size: 13px; color: #EF4444; min-height: 20px; }
+.spinner {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white; border-radius: 50%;
+  animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* -- DASHBOARD -- */
 .screen { display: flex; flex-direction: column; min-height: 100vh; }
@@ -154,6 +163,18 @@ main { flex: 1; padding: 24px 32px; max-width: 1000px; margin: 0 auto; width: 10
 .modal-actions button { flex: 1; }
 
 /* -- IMAGE ROWS -- */
+.image-row-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.drag-handle-img { cursor: grab; color: #5A5A72; font-size: 16px; user-select: none; flex-shrink: 0; }
+.drag-handle-img:active { cursor: grabbing; }
+.image-row-header .image-row-inputs { flex: 1; margin-bottom: 0; }
+.btn-cover {
+  background: transparent; border: 1px solid rgba(250,204,21,0.3); color: #FACC15;
+  border-radius: 6px; width: 28px; height: 28px; font-size: 14px; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.btn-cover.active { background: rgba(250,204,21,0.15); border-color: #FACC15; }
+.btn-cover:hover { background: rgba(250,204,21,0.1); }
 .image-row {
   background: #16161F; border: 1px solid rgba(255,255,255,0.06);
   border-radius: 8px; padding: 12px; margin-bottom: 8px;
@@ -182,4 +203,66 @@ main { flex: 1; padding: 24px 32px; max-width: 1000px; margin: 0 auto; width: 10
 .image-row .image-preview {
   width: 100%; max-height: 120px; object-fit: cover;
   border-radius: 6px; margin-top: 6px;
+}
+
+/* -- TOAST -- */
+.toast-container {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  display: flex; flex-direction: column; gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  background: #16161F; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 14px 20px;
+  font-size: 14px; font-weight: 500; color: #F0F0F8;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  display: flex; align-items: center; gap: 10px;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 3.2s forwards;
+  max-width: 360px;
+}
+.toast-icon { font-size: 18px; flex-shrink: 0; }
+.toast-success { border-color: rgba(34,211,160,0.3); }
+.toast-success .toast-icon { color: #22D3A0; }
+.toast-error { border-color: rgba(239,68,68,0.3); }
+.toast-error .toast-icon { color: #EF4444; }
+.toast-info { border-color: rgba(79,142,247,0.3); }
+.toast-info .toast-icon { color: #4F8EF7; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(40px); }
+}
+
+/* -- RESPONSIVE -- */
+@media (max-width: 768px) {
+  .admin-header { padding: 16px 20px; flex-wrap: wrap; gap: 12px; }
+  .admin-header h1 { font-size: 18px; }
+  .admin-header-actions { width: 100%; justify-content: flex-end; }
+  main { padding: 16px 20px; }
+  .project-item { gap: 12px; padding: 10px 14px; flex-wrap: wrap; }
+  .project-actions { margin-left: auto; }
+  .modal { padding: 24px; }
+  .image-row-inputs { flex-direction: column; }
+  .image-row-inputs input[type="file"],
+  .image-row-inputs input[type="url"] { width: 100%; }
+}
+
+@media (max-width: 500px) {
+  .login-card { padding: 24px; }
+  .admin-header { padding: 12px 16px; }
+  .admin-header h1 { font-size: 16px; }
+  .admin-header-actions { gap: 8px; }
+  .btn-primary, .btn-outline { font-size: 12px; padding: 8px 14px; }
+  main { padding: 12px 16px; }
+  .project-item { gap: 8px; padding: 10px; }
+  .project-thumb { width: 40px; height: 40px; }
+  .project-tags { display: none; }
+  .project-status { font-size: 10px; padding: 3px 8px; }
+  .modal { padding: 16px; }
+  .modal h2 { font-size: 16px; }
+  .modal-actions { flex-direction: column; }
 }

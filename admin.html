@@ -18,7 +18,7 @@
     <form id="loginForm">
       <input type="email" id="emailInput" placeholder="Email" required autocomplete="email">
       <input type="password" id="passwordInput" placeholder="Senha" required autocomplete="current-password">
-      <button type="submit">Entrar</button>
+      <button type="submit" id="loginBtn">Entrar</button>
       <p id="loginError" class="error-msg"></p>
     </form>
   </div>
@@ -90,6 +90,8 @@
     </form>
   </div>
 </div>
+
+<div id="toastContainer" class="toast-container"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>

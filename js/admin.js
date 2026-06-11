@@ -31,6 +31,7 @@ const cancelBtn = document.getElementById('cancelBtn');
 
 let projects = [];
 let sortable = null;
+let imageSortable = null;
 let currentProjectId = null;
 
 auth.onAuthStateChanged(user => {
@@ -46,9 +47,17 @@ auth.onAuthStateChanged(user => {
 
 loginForm.addEventListener('submit', e => {
   e.preventDefault();
+  const btn = document.getElementById('loginBtn');
   loginError.textContent = '';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Entrando...';
   auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value)
-    .catch(() => { loginError.textContent = 'Email ou senha inválidos.'; });
+    .catch(() => {
+      loginError.textContent = 'Email ou senha inválidos.';
+      showToast('Email ou senha inválidos.', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+    });
 });
 
 logoutBtn.addEventListener('click', () => auth.signOut());
@@ -108,32 +117,55 @@ function escHtml(str) {
   return div.innerHTML;
 }
 
+function showToast(message, type = 'success') {
+  const icons = { success: '✓', error: '✗', info: 'ℹ' };
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<span class="toast-icon">${icons[type] || 'ℹ'}</span> ${escHtml(message)}`;
+  container.appendChild(toast);
+  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3600);
+}
+
 function updateOrder() {
   const items = projectList.querySelectorAll('.project-item');
   const batch = db.batch();
   items.forEach((item, i) => {
     batch.update(db.collection('projects').doc(item.dataset.id), { order: i + 1 });
   });
-  batch.commit();
+  batch.commit().then(() => showToast('Ordem atualizada!', 'info'));
 }
 
 // --- MULTI-IMAGE UPLOAD ---
 
-function createImageRow(url = '') {
+function createImageRow(url = '', isCover = false) {
   const row = document.createElement('div');
   row.className = 'image-row';
   row.innerHTML = `
-    <div class="image-row-inputs">
-      <input type="file" accept="image/*">
-      <input type="url" class="image-url" placeholder="Upload automático ou URL" value="${escAttr(url)}">
+    <div class="image-row-header">
+      <span class="drag-handle-img">☰</span>
+      <div class="image-row-inputs">
+        <input type="file" accept="image/*" multiple>
+        <input type="url" class="image-url" placeholder="Upload automático ou URL" value="${escAttr(url)}">
+      </div>
     </div>
     <div class="image-row-actions">
       <span class="upload-status"></span>
+      <button type="button" class="btn-cover ${isCover ? 'active' : ''}" title="Definir como capa">${isCover ? '★' : '☆'}</button>
       <button type="button" class="btn-remove" title="Remover imagem">×</button>
     </div>
     <img class="image-preview" style="${url ? '' : 'display:none'}" src="${url ? escAttr(url) : ''}" alt="Preview">
   `;
   return row;
+}
+
+function initImageSortable() {
+  if (imageSortable) imageSortable.destroy();
+  imageSortable = new Sortable(imagesContainer, {
+    handle: '.drag-handle-img',
+    animation: 150,
+  });
 }
 
 function getImageUrls() {
@@ -164,12 +196,14 @@ function openModal(id) {
 
     imagesContainer.innerHTML = '';
     const imgs = p.images && p.images.length ? p.images : (p.imageUrl ? [p.imageUrl] : ['']);
-    imgs.forEach(url => imagesContainer.appendChild(createImageRow(url)));
+    imgs.forEach((url, i) => imagesContainer.appendChild(createImageRow(url, i === 0)));
+    initImageSortable();
   } else {
     projectForm.reset();
     publishedInput.checked = true;
     imagesContainer.innerHTML = '';
-    imagesContainer.appendChild(createImageRow(''));
+    imagesContainer.appendChild(createImageRow('', true));
+    initImageSortable();
   }
 }
 
@@ -185,52 +219,80 @@ modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 
 addImageBtn.addEventListener('click', () => {
   imagesContainer.appendChild(createImageRow(''));
+  initImageSortable();
 });
 
-// Cloudinary upload via delegation
+// Cloudinary upload via delegation (multi-file)
 imagesContainer.addEventListener('change', async e => {
   const fileInput = e.target.closest('input[type="file"]');
   if (!fileInput) return;
-  const file = fileInput.files[0];
-  if (!file) return;
+  const files = fileInput.files;
+  if (!files.length) return;
 
   const row = fileInput.closest('.image-row');
-  const status = row.querySelector('.upload-status');
-  const urlInput = row.querySelector('.image-url');
-  const preview = row.querySelector('.image-preview');
+  const total = files.length;
 
-  status.textContent = 'Enviando...';
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', UPLOAD_PRESET);
-  formData.append('folder', 'portifolio');
+  for (let i = 0; i < total; i++) {
+    const file = files[i];
+    const targetRow = i === 0
+      ? row
+      : (() => {
+          const nr = createImageRow('');
+          imagesContainer.insertBefore(nr, row.nextSibling);
+          return nr;
+        })();
 
-  try {
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
-      method: 'POST', body: formData
-    });
-    const data = await res.json();
-    if (data.secure_url) {
-      urlInput.value = data.secure_url;
-      preview.src = data.secure_url;
-      preview.style.display = '';
-      status.textContent = 'Upload concluído';
-      status.style.color = '#22D3A0';
-    } else {
-      status.textContent = 'Erro ao enviar';
+    const status = targetRow.querySelector('.upload-status');
+    const urlInput = targetRow.querySelector('.image-url');
+    const preview = targetRow.querySelector('.image-preview');
+
+    status.textContent = total > 1 ? `Enviando (${i + 1}/${total})...` : 'Enviando...';
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    formData.append('folder', 'portifolio');
+
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+        method: 'POST', body: formData
+      });
+      const data = await res.json();
+      if (data.secure_url) {
+        urlInput.value = data.secure_url;
+        preview.src = data.secure_url;
+        preview.style.display = '';
+        status.textContent = 'OK';
+        status.style.color = '#22D3A0';
+        if (total === 1) showToast('Imagem enviada com sucesso!');
+      } else {
+        status.textContent = 'Erro';
+        status.style.color = '#EF4444';
+        showToast('Erro ao enviar imagem.', 'error');
+      }
+    } catch {
+      status.textContent = 'Erro';
       status.style.color = '#EF4444';
+      showToast('Erro ao enviar imagem.', 'error');
     }
-  } catch {
-    status.textContent = 'Erro de conexão';
-    status.style.color = '#EF4444';
   }
+
+  fileInput.value = '';
 });
 
-// Remove image row via delegation
+// Image row actions via delegation
 imagesContainer.addEventListener('click', e => {
-  const btn = e.target.closest('.btn-remove');
-  if (!btn) return;
-  const row = btn.closest('.image-row');
+  const coverBtn = e.target.closest('.btn-cover');
+  if (coverBtn) {
+    imagesContainer.querySelectorAll('.btn-cover').forEach(b => { b.textContent = '☆'; b.classList.remove('active'); });
+    coverBtn.textContent = '★'; coverBtn.classList.add('active');
+    const row = coverBtn.closest('.image-row');
+    imagesContainer.insertBefore(row, imagesContainer.firstChild);
+    return;
+  }
+
+  const removeBtn = e.target.closest('.btn-remove');
+  if (!removeBtn) return;
+  const row = removeBtn.closest('.image-row');
   if (imagesContainer.querySelectorAll('.image-row').length > 1) {
     row.remove();
   }
@@ -266,14 +328,20 @@ projectForm.addEventListener('submit', async e => {
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
 
-  if (currentProjectId) {
-    await db.collection('projects').doc(currentProjectId).update(data);
-  } else {
-    data.order = projects.length + 1;
-    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-    await db.collection('projects').add(data);
+  try {
+    if (currentProjectId) {
+      await db.collection('projects').doc(currentProjectId).update(data);
+      showToast('Projeto atualizado com sucesso!');
+    } else {
+      data.order = projects.length + 1;
+      data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      await db.collection('projects').add(data);
+      showToast('Projeto criado com sucesso!');
+    }
+    closeModal();
+  } catch {
+    showToast('Erro ao salvar projeto.', 'error');
   }
-  closeModal();
 });
 
 projectList.addEventListener('click', e => {
@@ -286,10 +354,14 @@ projectList.addEventListener('click', e => {
     openModal(id);
   } else if (btn.classList.contains('toggle-btn')) {
     const p = projects.find(x => x.id === id);
-    if (p) db.collection('projects').doc(id).update({ published: !p.published });
+    if (p) {
+      db.collection('projects').doc(id).update({ published: !p.published });
+      showToast(p.published ? 'Projeto arquivado.' : 'Projeto publicado!');
+    }
   } else if (btn.classList.contains('delete-btn')) {
     if (confirm('Excluir este projeto?')) {
       db.collection('projects').doc(id).delete();
+      showToast('Projeto excluído.');
     }
   }
 });
