@@ -46,7 +46,8 @@
 - Lightbox com zoom e navegação entre imagens (setas + teclado)
 - Scroll reveal (IntersectionObserver)
 - Contagem animada dos stats
-- Smooth scroll com `scroll-margin-top: 24px`
+- Smooth scroll com `scroll-margin-top: 24px` (ajustado para não cortar o conteúdo pela nav sticky)
+- Descrições com quebra de linha preservada (`white-space: pre-line` nos cards e modal)
 - Botão back-to-top + WhatsApp flutuante
 - Responsivo: 3 col (>1100px), 2 col (600-1100px), 1 col (<600px)
 
@@ -60,7 +61,7 @@
 
 ## Textos Padronizados
 - Nav: Início, Sobre, Serviços, Projetos, Contato
-- Hero typewriter: `Full-Stack | Web Developer`
+- Hero typewriter: `Full-Stack | Web Developer.`
 - Stats: Projetos Entregues, Clientes Satisfeitos, Anos de Experiência
 - Subtítulo Sobre: "Transformando ideias em produtos digitais de alto impacto"
 - Footer: `<feito com ❤️ e código />`
