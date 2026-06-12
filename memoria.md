@@ -42,12 +42,20 @@
 - Seções: Sobre, Serviços, Projetos, CTA
 - Projetos carregados dinamicamente do Firestore
 - Skeleton loading (3 cards placeholder) → blur placeholder nas thumbs → stagger fade-up
+- Nav mobile com hambúrguer animado (3 linhas → X com rotate)
 - Modal com carrossel (setas azuis SVG, dots, navegação por teclado ← →, focus trap)
+- Modal com altura fixa (`80vh` desktop, `85vh` tablet, `90vh` mobile) — sem oscilar entre fotos nem pelo tamanho da descrição
+- Galeria do modal com blur background (`::before` com `filter: blur(25px)`) nas laterais das fotos
+- Info do modal com scrollbar fina (`scrollbar-width: thin`, 5px webkit)
+- Linha separadora abaixo do título no modal (`border-bottom`)
 - Lightbox com zoom e navegação entre imagens (setas + teclado)
+- Scroll da página travado com `overflow: hidden` ao abrir modal (sem saltar posição)
 - Scroll reveal (IntersectionObserver)
 - Contagem animada dos stats
 - Smooth scroll com `scroll-margin-top: 24px` (ajustado para não cortar o conteúdo pela nav sticky)
 - Descrições com quebra de linha preservada (`white-space: pre-line` nos cards e modal)
+- Descrição nos cards truncada em 3 linhas com `-webkit-line-clamp` (completa no modal)
+- Tags + botão "Ver Projeto →" travados no fim do card (`display:flex; margin-top:auto`)
 - Botão back-to-top + WhatsApp flutuante
 - Responsivo: 3 col (>1100px), 2 col (600-1100px), 1 col (<600px)
 

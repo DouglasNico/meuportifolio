@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mobileBtn) {
         mobileBtn.addEventListener('click', () => {
             navMenu.classList.toggle('active');
+            mobileBtn.classList.toggle('active');
         });
     }
 
@@ -116,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const modalStackWrap = projModal.querySelector('.modal-stack-wrap');
         const modalStack = projModal.querySelector('.modal-stack');
         const modalLink = projModal.querySelector('.modal-link');
+        const modalGallery = projModal.querySelector('.modal-gallery');
         const galleryImg = projModal.querySelector('.gallery-img');
         const galleryPrev = projModal.querySelector('.gallery-prev');
         const galleryNext = projModal.querySelector('.gallery-next');
@@ -181,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             galleryImg.style.opacity = '0';
             setTimeout(() => {
                 galleryImg.src = images[currentImageIndex];
+                modalGallery.style.backgroundImage = `url("${images[currentImageIndex]}")`;
                 galleryImg.alt = `Imagem ${currentImageIndex + 1} de ${images.length}`;
                 galleryImg.style.opacity = '1';
             }, 150);
@@ -274,12 +277,10 @@ document.addEventListener('DOMContentLoaded', () => {
         function openLightbox() {
             updateLightbox();
             lb.classList.add('active');
-            document.body.style.overflow = 'hidden';
         }
 
         function closeLightbox() {
             lb.classList.remove('active');
-            document.body.style.overflow = '';
         }
 
         lb.querySelector('.lightbox-backdrop').addEventListener('click', closeLightbox);
@@ -402,8 +403,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="proj-body">
                         <div class="proj-title">${esc(p.title)}</div>
                         <div class="proj-desc">${esc(p.description)}</div>
-                        <div class="proj-tags">${(p.tags || []).map(t => `<span class="ptag">${esc(t)}</span>`).join('')}</div>
-                        ${p.link ? `<a class="proj-btn" href="${esc(p.link)}" target="_blank">Ver Projeto →</a>` : ''}
+                        <div class="proj-bottom">
+                            <div class="proj-tags">${(p.tags || []).map(t => `<span class="ptag">${esc(t)}</span>`).join('')}</div>
+                            ${p.link ? `<a class="proj-btn" href="${esc(p.link)}" target="_blank">Ver Projeto →</a>` : ''}
+                        </div>
                     </div>
                 `;
 
