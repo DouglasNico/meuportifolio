@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     navLinks.forEach(link => {
         link.addEventListener('click', () => {
             navMenu.classList.remove('active');
+            mobileBtn.classList.remove('active');
         });
     });
 
@@ -117,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const modalStackWrap = projModal.querySelector('.modal-stack-wrap');
         const modalStack = projModal.querySelector('.modal-stack');
         const modalLink = projModal.querySelector('.modal-link');
+        const modalInfo = projModal.querySelector('.modal-info');
         const modalGallery = projModal.querySelector('.modal-gallery');
         const galleryImg = projModal.querySelector('.gallery-img');
         const galleryPrev = projModal.querySelector('.gallery-prev');
@@ -126,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function openProjModal(project) {
             currentProject = project;
             currentImageIndex = 0;
+            modalInfo.scrollTop = 0;
 
             modalTitle.textContent = project.title;
             modalDesc.textContent = project.description || '';

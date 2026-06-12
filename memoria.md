@@ -42,7 +42,7 @@
 - Seções: Sobre, Serviços, Projetos, CTA
 - Projetos carregados dinamicamente do Firestore
 - Skeleton loading (3 cards placeholder) → blur placeholder nas thumbs → stagger fade-up
-- Nav mobile com hambúrguer animado (3 linhas → X com rotate)
+- Nav mobile com hambúrguer animado (3 linhas → X com rotate, volta ao fechar link)
 - Modal com carrossel (setas azuis SVG, dots, navegação por teclado ← →, focus trap)
 - Modal com altura fixa (`80vh` desktop, `85vh` tablet, `90vh` mobile) — sem oscilar entre fotos nem pelo tamanho da descrição
 - Galeria do modal com blur background (`::before` com `filter: blur(25px)`) nas laterais das fotos
