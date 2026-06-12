@@ -65,7 +65,7 @@
 - CRUD completo com modal
 - Multi-upload de imagens (drag-reorder com SortableJS, cover star, preview)
 - Publicar/arquivar toggle
-- Ordenação por drag
+- Ordenação por drag (SortableJS) — atualiza campo `order` no Firestore em batch, site reflete em tempo real via `onSnapshot`
 - Toast notifications (success/error/info)
 
 ## Textos Padronizados

@@ -399,18 +399,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const db = firebase.firestore();
         let projectsData = [];
 
-        function renderProjects(snapshot) {
+        function renderProjects(snapshot, sorted) {
             projectsData = [];
             if (snapshot.empty) {
                 container.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0">Nenhum projeto publicado ainda.</p>';
                 return;
             }
+            let docs = [];
+            snapshot.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+            if (!sorted) docs.sort((a, b) => (a.order || 0) - (b.order || 0));
             container.innerHTML = '';
-            snapshot.forEach((doc, index) => {
-                const p = doc.data();
-                const id = doc.id;
-                projectsData.push({ id, ...p });
-
+            docs.forEach((p, index) => {
+                const id = p.id;
+                projectsData.push(p);
                 const card = document.createElement('div');
                 card.className = 'proj-card';
                 card.dataset.id = id;
@@ -453,10 +454,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         db.collection('projects').where('published', '==', true).orderBy('order')
-            .onSnapshot(renderProjects, error => {
+            .onSnapshot(snapshot => {
+                renderProjects(snapshot, true);
+            }, error => {
                 console.error('Firestore index error:', error);
                 db.collection('projects').where('published', '==', true)
-                    .onSnapshot(renderProjects, () => {
+                    .onSnapshot(snapshot => {
+                        renderProjects(snapshot, false);
+                    }, () => {
                         container.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0">Erro ao carregar projetos.</p>';
                     });
             });
