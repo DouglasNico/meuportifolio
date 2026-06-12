@@ -188,6 +188,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 galleryImg.src = images[currentImageIndex];
                 modalGallery.style.backgroundImage = `url("${images[currentImageIndex]}")`;
                 galleryImg.alt = `Imagem ${currentImageIndex + 1} de ${images.length}`;
+                galleryImg.classList.remove('slide-right', 'slide-left');
+                void galleryImg.offsetWidth;
+                if (galleryImg.dataset.slideDir) {
+                    galleryImg.classList.add(galleryImg.dataset.slideDir);
+                    delete galleryImg.dataset.slideDir;
+                }
                 galleryImg.style.opacity = '1';
             }, 150);
 
@@ -211,6 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const ni = currentImageIndex + dir;
             if (ni >= 0 && ni < images.length) {
                 currentImageIndex = ni;
+                galleryImg.dataset.slideDir = dir > 0 ? 'slide-right' : 'slide-left';
                 updateGallery(images);
             }
         }
@@ -220,6 +227,16 @@ document.addEventListener('DOMContentLoaded', () => {
         galleryPrev.addEventListener('click', () => navigateGallery(-1));
         galleryNext.addEventListener('click', () => navigateGallery(1));
 
+        // Swipe na galeria
+        let touchStartX = 0;
+        galleryImg.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        galleryImg.addEventListener('touchend', e => {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 50) navigateGallery(diff > 0 ? 1 : -1);
+        }, { passive: true });
+
         galleryDots.addEventListener('click', e => {
             const dot = e.target.closest('.gallery-dot');
             if (!dot) return;
@@ -227,6 +244,8 @@ document.addEventListener('DOMContentLoaded', () => {
                            (currentProject.imageUrl ? [currentProject.imageUrl] : []);
             const idx = parseInt(dot.dataset.index);
             if (idx >= 0 && idx < images.length) {
+                galleryImg.dataset.slideDir = idx > currentImageIndex ? 'slide-right' : 'slide-left';
+                currentImageIndex = idx;
                 currentImageIndex = idx;
                 updateGallery(images);
             }
